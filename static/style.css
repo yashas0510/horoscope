@@ -1,0 +1,81 @@
+:root {
+  --aurora-blue: #1f6fe0;
+  --sky-opal: #b8f3ff;
+  --frost-halo: rgba(255,255,255,0.25);
+  --bg-dark: #0a1022;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: radial-gradient(circle at top, #12265a, var(--bg-dark));
+  font-family: "Segoe UI", system-ui, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.card {
+  width: 340px;
+  padding: 32px;
+  border-radius: 22px;
+  background: linear-gradient(145deg, #2a7fff, var(--aurora-blue));
+  box-shadow: 0 0 40px var(--frost-halo);
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 18px;
+  font-size: 26px;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  margin-bottom: 10px;
+}
+
+label {
+  font-size: 12px;
+  opacity: 0.8;
+  display: block;
+  text-align: left;
+  margin-bottom: 4px;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: var(--sky-opal);
+  color: #0a1022;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 0 20px var(--frost-halo);
+}
+
+.sign {
+  margin-top: 20px;
+  font-size: 28px;
+  text-shadow: 0 0 12px var(--frost-halo);
+}
+
+.msg {
+  margin-top: 6px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.consent {
+  font-size: 11px;
+  margin-top: 10px;
+  opacity: 0.7;
+}
+
+video, canvas {
+  display: none;
+}

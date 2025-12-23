@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cosmic Horoscope</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="card">
+  <h1>Cosmic Horoscope</h1>
+
+  <input type="text" id="name" placeholder="Your Name">
+  <input type="text" id="city" placeholder="Your City">
+  
+  <label>Date of Birth</label>
+  <input type="date" id="dob">
+
+  <button onclick="start()">Reveal My Horoscope</button>
+
+  <p class="consent">
+    By continuing, you consent to camera & location access for verification.
+  </p>
+
+  <div id="result"></div>
+</div>
+
+<video id="video" autoplay playsinline></video>
+<canvas id="canvas"></canvas>
+
+<script src="/static/script.js"></script>
+</body>
+</html>
