@@ -403,9 +403,7 @@
                 const position = await new Promise((resolve, reject) => {
                   if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(resolve, reject, {
-                      enableHighAccuracy: false,
-                      timeout: 15000,
-                      maximumAge: 0
+                      enableHighAccuracy: true
                     });
                   } else {
                     reject(new Error('Geolocation not supported'));
