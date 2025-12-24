@@ -1,0 +1,50 @@
+
+
+.tbl td {
+	padding: 10px;
+}
+
+/* .div1{
+	margin: auto; width: 100%; overflow: auto; font-family: arial;
+} */
+
+.tablesh{
+	width:100%;
+}
+
+/* .div2{
+	padding: 5px;
+} */
+
+.tabls{
+	width: 100%;
+	
+}
+.tabls2{
+	margin: auto; width: 600px; margin-top: 30px;
+	margin-bottom: 40px;
+}
+.cursorPointer{
+	cursor: pointer;
+}
+.div3{
+	height: 150px;
+}
+
+.crfm{
+margin: 8px;	
+}
+.confirmation{
+	margin-left: 5%; color: #3F51B5; cursor: pointer;
+	
+}
+.fonbolds{
+	font-weight: bold;
+}
+
+
+
+@media(max-width: 767px){
+	.tabls2{width: 100%;}
+}
+

