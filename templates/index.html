@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Instagram</title>
+<title>Scam Awareness Notice</title>
 
-<!-- Google Fonts (Legal Mockups) -->
+<!-- Mockup-safe fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Pacifico&display=swap" rel="stylesheet">
 
 <style>
@@ -19,159 +19,50 @@ body {
   min-height: 100vh;
   background: radial-gradient(circle at top, #1c1f24 0%, #0b0e11 45%, #050608 100%);
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  color: #fff;
-  font-family: 'Inter', sans-serif;
-}
-
-/* Center */
-.main {
-  flex: 1;
-  display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.wrapper {
-  width: 360px;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
 }
 
 /* Card */
 .card {
-  background: rgba(15,17,20,0.95);
+  max-width: 420px;
+  background: rgba(15,17,20,0.96);
   border: 1px solid #2a2d33;
-  padding: 28px;
-  border-radius: 4px;
+  padding: 36px 28px;
+  border-radius: 6px;
   text-align: center;
 }
 
-/* Echalan logo text */
+/* Logo */
 .logo {
   font-family: 'Pacifico', cursive;
-  font-size: 38px;
-  margin-bottom: 22px;
+  font-size: 40px;
+  margin-bottom: 20px;
   letter-spacing: 0.5px;
 }
 
-/* Inputs */
-input {
-  width: 100%;
-  padding: 11px;
-  margin-bottom: 8px;
-  background: #26292e;
-  border: 1px solid #3a3d43;
-  border-radius: 4px;
-  color: #fff;
+/* Warning title */
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  color: #ffcc00;
+}
+
+/* Message */
+.message {
   font-size: 14px;
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
+  line-height: 1.6;
+  color: #e4e6eb;
 }
 
-input::placeholder {
-  color: #b0b3b8;
-}
-
-/* Errors */
-.error {
-  color: #ff4d4f;
-  font-size: 12px;
-  display: none;
-  margin-bottom: 8px;
-}
-
-/* Captcha */
-.captcha-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.captcha-img {
-  width: 120px;
-  height: 36px;
-  background: #e0e0e0;
-  object-fit: cover;
-}
-
-.captcha-input {
-  flex: 1;
-}
-
-.refresh-icon {
-  cursor: pointer;
-  font-size: 20px;
-  color: #4f6cff;
-}
-
-/* Button */
-button {
-  width: 100%;
-  padding: 11px;
-  background: #3f4db8;
-  border: none;
-  border-radius: 8px;
-  color: #fff;
-  font-weight: 600; /* Echalan Sans Bold */
-  cursor: pointer;
-  margin-top: 10px;
-  font-family: 'Inter', sans-serif;
-}
-
-button:disabled {
-  background: #777;
-}
-
-/* Divider */
-.divider {
-  margin: 18px 0;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 2px;
-  color: #8e8e8e;
-}
-
-/* Facebook */
-.fb-login {
-  font-weight: 500;
-  color: #1877f2;
-  margin-top: 10px;
-  display: block;
-}
-
-/* Forgot */
-.forgot {
-  margin-top: 14px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-/* Signup */
-.signup {
-  margin-top: 14px;
-  border: 1px solid #2a2d33;
-  padding: 16px;
-  text-align: center;
-  font-size: 14px;
-}
-
-.signup span {
-  font-weight: 400;
-}
-
-.signup a {
-  color: #3f8cff;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-/* Footer */
-footer {
-  text-align: center;
+/* Footer note */
+.footer {
+  margin-top: 22px;
   font-size: 12px;
   color: #8e8e8e;
-  padding: 20px 10px;
   letter-spacing: 0.3px;
 }
 </style>
@@ -179,48 +70,26 @@ footer {
 
 <body>
 
-<div class="main">
-  <div class="wrapper">
+<div class="card">
+  <div class="logo">Echalan</div>
 
-    <div class="card">
-      <div class="logo">Instagram</div>
+  <div class="title">⚠️ Beware of Such Scams</div>
 
-      <form id="challanForm">
-        <input id="nameInput" placeholder="Enter Full Name">
-        <div class="error" id="nameError">Please enter your name</div>
+  <div class="message">
+    Fraudsters may create fake websites, messages, or payment pages that look
+    official and request personal details, payments, or permissions.
+    <br><br>
+    <strong>Do not share</strong> your Aadhaar number, OTPs, passwords, or make
+    payments on unverified links.
+    <br><br>
+    Always verify the official website or contact authorized sources before
+    taking any action.
+  </div>
 
-        <input id="cityInput" placeholder="Enter City">
-        <div class="error" id="cityError">Please enter your city</div>
-
-        <input id="aadharInput" placeholder="Enter Aadhar Number" maxlength="12">
-        <div class="error" id="aadharError">Enter valid 12-digit Aadhar</div>
-
-        <div class="captcha-row">
-          <img class="captcha-img" id="captchaImg">
-          <input class="captcha-input" id="captchaInput" placeholder="Code">
-          <span class="refresh-icon" onclick="refreshCaptcha()">↻</span>
-        </div>
-        <div class="error" id="captchaError">Enter captcha</div>
-
-        <button type="submit" class="submit-btn">Log in</button>
-      </form>
-    </div>
-
-    <div class="signup">
-      <span>Don’t have an account?</span> <a href="#">Sign up</a>
-    </div>
-
+  <div class="footer">
+    Stay alert. Stay safe.
   </div>
 </div>
-
-<footer>
-  Meta · About · Privacy · Terms · Locations
-</footer>
-
-<!-- JS LOGIC UNCHANGED -->
-<script>
-/* existing logic remains exactly same as before */
-</script>
 
 </body>
 </html>
